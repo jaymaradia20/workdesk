@@ -24,7 +24,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .nb{margin-left:auto;font-size:10.5px;background:var(--surface2);color:var(--text3);border-radius:10px;padding:1px 7px;font-weight:500;min-width:22px;text-align:center}
 .ni.active .nb{background:var(--accent);color:#fff}
 .sf{padding:14px 18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--text3);line-height:1.5}
-.sdot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block;margin-right:5px}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block;margin-right:5px;vertical-align:middle}
 .sdot.sy{background:var(--amber);animation:pu 1s infinite}
 .sdot.er{background:var(--red)}
 @keyframes pu{0%,100%{opacity:1}50%{opacity:.35}}
@@ -63,7 +63,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .tct{font-size:12.5px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:7px}
 .tcm{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .cp{font-size:10.5px;padding:2px 7px;border-radius:4px;font-weight:500}
-.pd{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.prd{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .dt{font-size:10.5px;font-weight:500}
 .do{color:var(--red)}.dw{color:var(--amber)}.dk{color:var(--green)}
 .pc{font-size:10px;padding:1px 7px;border-radius:4px;font-weight:600;letter-spacing:.03em}
@@ -144,7 +144,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .sp{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .lt{font-size:13px;color:var(--text2)}
-.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:10px 16px;border-radius:var(--rsm);font-size:12.5px;z-index:300;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:10px 16px;border-radius:var(--rsm);font-size:12.5px;z-index:300;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;max-width:320px}
 .toast.show{opacity:1;transform:translateY(0)}
 @media(max-width:960px){.sr{grid-template-columns:repeat(3,1fr)}.kb{grid-template-columns:1fr}.ag,.pg{grid-template-columns:1fr}}
 @media(max-width:680px){.sidebar{width:200px}.sr{grid-template-columns:repeat(2,1fr)}}
@@ -153,7 +153,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </head>
 <body>
 
-<div class="lov" id="lov"><div class="sp"></div><div class="lt">Connecting to WorkDesk…</div></div>
+<div class="lov" id="lov"><div class="sp"></div><div class="lt" id="lt">Connecting to WorkDesk…</div></div>
 <div class="toast" id="toast"></div>
 
 <div class="app">
@@ -184,7 +184,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="ni" onclick="showPage('all',this);setTF('research')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Research<span class="nb" id="nb-res">0</span></div>
     <div class="ni" onclick="showPage('all',this);setTF('freelance')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Freelance<span class="nb" id="nb-fr">0</span></div>
   </nav>
-  <div class="sf">HBT Medical College<br>&amp; Dr. R.N. Cooper Hospital<br><span class="sdot" id="sdot"></span><span id="slbl" style="font-size:11px">Connected</span></div>
+  <div class="sf">HBT Medical College<br>&amp; Dr. R.N. Cooper Hospital<br><span class="sdot" id="sdot"></span><span id="slbl" style="font-size:11px">Connecting…</span></div>
 </aside>
 
 <main class="main">
@@ -271,223 +271,410 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </div>
 
 <script>
-const SB='https://hqnrnzuqpqkhqjihsbmx.supabase.co';
-const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxbnJuenVxcHFraHFqaWhzYm14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MzY3MTksImV4cCI6MjA5NDMxMjcxOX0.fnXK3gXssNQ7EFh1hzFjZNaftF7fJpQq4l8kh0_VgEE';
-const H={'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY};
-const get=()=>fetch(`${SB}/rest/v1/tasks?select=*&order=created_at.asc`,{headers:{...H,'Prefer':'return=representation'}}).then(r=>{if(!r.ok)throw r;return r.json()});
-const ins=d=>fetch(`${SB}/rest/v1/tasks`,{method:'POST',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)}).then(r=>{if(!r.ok)throw r;return r.json()});
-const upd=(id,d)=>fetch(`${SB}/rest/v1/tasks?id=eq.${id}`,{method:'PATCH',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)}).then(r=>{if(!r.ok)throw r;return r.json()});
-const del=id=>fetch(`${SB}/rest/v1/tasks?id=eq.${id}`,{method:'DELETE',headers:H}).then(r=>{if(!r.ok)throw r});
+// ── Supabase config ──
+const SB_URL = 'https://hqnrnzuqpqkhqjihsbmx.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxbnJuenVxcHFraHFqaWhzYm14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MzY3MTksImV4cCI6MjA5NDMxMjcxOX0.fnXK3gXssNQ7EFh1hzFjZNaftF7fJpQq4l8kh0_VgEE';
 
-const CM={dept:{label:'Departmental',cls:'cat-dept',color:'#185FA5'},thesis:{label:'Thesis/Diss.',cls:'cat-thesis',color:'#5B3F9A'},pub:{label:'Publication',cls:'cat-pub',color:'#1A6B5A'},ppt:{label:'PPT',cls:'cat-ppt',color:'#B8720F'},research:{label:'Research',cls:'cat-research',color:'#B84C2E'},freelance:{label:'Freelance',cls:'cat-freelance',color:'#8A6A1A'}};
-const PM={high:{color:'#C0392B',label:'High'},med:{color:'#B8720F',label:'Med'},low:{color:'#2D7A4A',label:'Low'}};
-const SC=[{id:'pending',label:'Pending',cls:'kp'},{id:'inprogress',label:'In progress',cls:'ki'},{id:'done',label:'Done',cls:'kd'}];
-const PCM={na:{label:'N/A',cls:'pna'},pending:{label:'Pending',cls:'ppe'},received:{label:'Received',cls:'prv'}};
+// Core API calls
+async function sbFetch(method, path, body) {
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+    }
+  };
+  if (body !== undefined) opts.body = JSON.stringify(body);
+  // For INSERT/PATCH we want the row back
+  if (method === 'POST' || method === 'PATCH') {
+    opts.headers['Prefer'] = 'return=representation';
+  }
+  const res = await fetch(SB_URL + '/rest/v1/' + path, opts);
+  const text = await res.text();
+  if (!res.ok) throw new Error(text || res.status);
+  return text ? JSON.parse(text) : null;
+}
 
-let tasks=[],kf='all',tf='all',eid=null;
-const fmt=n=>'₹'+Number(n||0).toLocaleString('en-IN');
-const du=d=>{if(!d)return null;return Math.round((new Date(d)-new Date(new Date().toDateString()))/864e5)};
-const fd=d=>{if(!d)return '—';return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})};
-const db=d=>{const n=du(d);if(n===null)return '';if(n<0)return`<span class="dt do">Overdue</span>`;if(n===0)return`<span class="dt do">Today</span>`;if(n<=3)return`<span class="dt do">${n}d</span>`;if(n<=7)return`<span class="dt dw">${n}d</span>`;return`<span class="dt dk">${n}d</span>`};
-const pch=s=>{if(!s||s==='na')return '';return`<span class="pc ${PCM[s].cls}">${s==='received'?'✓ Paid':'₹ Pending'}</span>`};
-const ss=(st)=>{const d=document.getElementById('sdot'),l=document.getElementById('slbl');if(st==='ok'){d.className='sdot';l.textContent='Synced'}else if(st==='sy'){d.className='sdot sy';l.textContent='Syncing…'}else{d.className='sdot er';l.textContent='Sync error'}};
-const toast=(m,e)=>{const el=document.getElementById('toast');el.textContent=m;el.style.background=e?'var(--red)':'var(--text)';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800)};
+const dbGet  = ()         => sbFetch('GET',   'tasks?select=*&order=created_at.asc');
+const dbIns  = row        => sbFetch('POST',  'tasks', row);
+const dbUpd  = (id, row)  => sbFetch('PATCH', `tasks?id=eq.${id}`, row);
+const dbDel  = id         => sbFetch('DELETE',`tasks?id=eq.${id}`);
 
-const r2t=r=>({id:r.id,title:r.title,cat:r.cat,pri:r.pri,status:r.status,date:r.date||'',notes:r.notes||'',contact:{name:r.contact_name||'',role:r.contact_role||'',phone:r.contact_phone||'',email:r.contact_email||''},payment:{amount:r.pay_amount||0,status:r.pay_status||'na',date:r.pay_date||'',notes:r.pay_notes||''}});
-const t2r=t=>({title:t.title,cat:t.cat,pri:t.pri,status:t.status,date:t.date||'',notes:t.notes||'',contact_name:t.contact?.name||'',contact_role:t.contact?.role||'',contact_phone:t.contact?.phone||'',contact_email:t.contact?.email||'',pay_amount:t.payment?.amount||0,pay_status:t.payment?.status||'na',pay_date:t.payment?.date||'',pay_notes:t.payment?.notes||''});
+// ── Metadata ──
+const CM = {
+  dept:     {label:'Departmental', cls:'cat-dept',      color:'#185FA5'},
+  thesis:   {label:'Thesis/Diss.', cls:'cat-thesis',    color:'#5B3F9A'},
+  pub:      {label:'Publication',  cls:'cat-pub',        color:'#1A6B5A'},
+  ppt:      {label:'PPT',         cls:'cat-ppt',        color:'#B8720F'},
+  research: {label:'Research',     cls:'cat-research',   color:'#B84C2E'},
+  freelance:{label:'Freelance',    cls:'cat-freelance',  color:'#8A6A1A'},
+};
+const PM  = {high:{color:'#C0392B',label:'High'}, med:{color:'#B8720F',label:'Med'}, low:{color:'#2D7A4A',label:'Low'}};
+const SC  = [{id:'pending',label:'Pending',cls:'kp'},{id:'inprogress',label:'In progress',cls:'ki'},{id:'done',label:'Done',cls:'kd'}];
+const PCM = {na:{label:'N/A',cls:'pna'}, pending:{label:'Pending',cls:'ppe'}, received:{label:'Received',cls:'prv'}};
 
-async function loadTasks(){
+let tasks=[], kf='all', tf='all', eid=null;
+
+// ── Utils ──
+const fmt = n => '₹' + Number(n||0).toLocaleString('en-IN');
+const du  = d => { if(!d) return null; return Math.round((new Date(d) - new Date(new Date().toDateString())) / 864e5); };
+const fd  = d => { if(!d) return '—'; return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); };
+const db  = d => {
+  const n=du(d); if(n===null) return '';
+  if(n<0)  return `<span class="dt do">Overdue</span>`;
+  if(n===0)return `<span class="dt do">Today</span>`;
+  if(n<=3) return `<span class="dt do">${n}d</span>`;
+  if(n<=7) return `<span class="dt dw">${n}d</span>`;
+  return `<span class="dt dk">${n}d</span>`;
+};
+const pch = s => {
+  if(!s||s==='na') return '';
+  return `<span class="pc ${PCM[s].cls}">${s==='received'?'✓ Paid':'₹ Pending'}</span>`;
+};
+const ss = st => {
+  const d=document.getElementById('sdot'), l=document.getElementById('slbl');
+  if(st==='ok')      { d.className='sdot';    l.textContent='Synced'; }
+  else if(st==='sy') { d.className='sdot sy'; l.textContent='Syncing…'; }
+  else               { d.className='sdot er'; l.textContent='Sync error'; }
+};
+let toastTimer;
+const toast = (msg, err) => {
+  clearTimeout(toastTimer);
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = err ? 'var(--red)' : '#1A3D28';
+  el.classList.add('show');
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+};
+
+// ── Row ↔ Task mapping ──
+const r2t = r => ({
+  id: r.id, title: r.title, cat: r.cat, pri: r.pri, status: r.status,
+  date: r.date||'', notes: r.notes||'',
+  contact: { name: r.contact_name||'', role: r.contact_role||'', phone: r.contact_phone||'', email: r.contact_email||'' },
+  payment: { amount: r.pay_amount||0, status: r.pay_status||'na', date: r.pay_date||'', notes: r.pay_notes||'' },
+});
+const t2r = t => ({
+  title: t.title, cat: t.cat, pri: t.pri, status: t.status,
+  date: t.date||'', notes: t.notes||'',
+  contact_name:  t.contact?.name||'',
+  contact_role:  t.contact?.role||'',
+  contact_phone: t.contact?.phone||'',
+  contact_email: t.contact?.email||'',
+  pay_amount: t.payment?.amount||0,
+  pay_status: t.payment?.status||'na',
+  pay_date:   t.payment?.date||'',
+  pay_notes:  t.payment?.notes||'',
+});
+
+// ── Load ──
+async function loadTasks() {
   ss('sy');
-  try{const rows=await get();tasks=rows.map(r2t);ss('ok');rafAll();}
-  catch(e){ss('er');toast('Could not load tasks',true);}
-  document.getElementById('lov').classList.add('hid');
+  document.getElementById('lt').textContent = 'Loading tasks…';
+  try {
+    const rows = await dbGet();
+    tasks = rows.map(r2t);
+    ss('ok');
+    rafAll();
+    document.getElementById('lov').classList.add('hid');
+  } catch(e) {
+    ss('er');
+    document.getElementById('lt').textContent = 'Connection failed. Check internet and refresh.';
+    toast('Load failed: ' + e.message, true);
+    document.getElementById('lov').classList.add('hid');
+  }
 }
 
-function rafAll(){
+function rafAll() {
   updateBadges();
-  const pg=document.querySelector('.page.active')?.id?.replace('page-','');
-  if(pg==='dashboard')renderDash();else if(pg==='deadlines')renderDL();else if(pg==='payments')renderPay();else if(pg==='all')renderAll();else if(pg==='analytics')renderAn();else renderDash();
+  const pg = document.querySelector('.page.active')?.id?.replace('page-','');
+  if     (pg==='dashboard') renderDash();
+  else if(pg==='deadlines') renderDL();
+  else if(pg==='payments')  renderPay();
+  else if(pg==='all')       renderAll();
+  else if(pg==='analytics') renderAn();
+  else renderDash();
 }
 
-function showPage(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+// ── Pages ──
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  if(el)el.classList.add('active');
-  ({dashboard:renderDash,deadlines:renderDL,payments:renderPay,all:renderAll,analytics:renderAn})[id]?.();
+  if(el) el.classList.add('active');
+  ({dashboard:renderDash, deadlines:renderDL, payments:renderPay, all:renderAll, analytics:renderAn})[id]?.();
 }
 
-function openModal(id){
-  eid=id||null;
-  document.getElementById('mtitle').textContent=id?'Edit task':'New task';
-  const clear=['ft','fdt','fn','fcn','fcr','fcp','fce','fpd','fpn'];
-  if(id){
-    const t=tasks.find(x=>x.id===id);if(!t)return;
-    document.getElementById('ft').value=t.title;
-    document.getElementById('fc').value=t.cat;
-    document.getElementById('fp').value=t.pri;
-    document.getElementById('fst').value=t.status;
-    document.getElementById('fdt').value=t.date||'';
-    document.getElementById('fn').value=t.notes||'';
-    document.getElementById('fcn').value=t.contact?.name||'';
-    document.getElementById('fcr').value=t.contact?.role||'';
-    document.getElementById('fcp').value=t.contact?.phone||'';
-    document.getElementById('fce').value=t.contact?.email||'';
-    document.getElementById('fam').value=t.payment?.amount||'';
-    document.getElementById('fps').value=t.payment?.status||'na';
-    document.getElementById('fpd').value=t.payment?.date||'';
-    document.getElementById('fpn').value=t.payment?.notes||'';
-  }else{
-    clear.forEach(i=>document.getElementById(i).value='');
+// ── Modal ──
+function openModal(id) {
+  eid = id || null;
+  document.getElementById('mtitle').textContent = id ? 'Edit task' : 'New task';
+  if(id) {
+    const t = tasks.find(x => x.id===id); if(!t) return;
+    document.getElementById('ft').value   = t.title;
+    document.getElementById('fc').value   = t.cat;
+    document.getElementById('fp').value   = t.pri;
+    document.getElementById('fst').value  = t.status;
+    document.getElementById('fdt').value  = t.date||'';
+    document.getElementById('fn').value   = t.notes||'';
+    document.getElementById('fcn').value  = t.contact?.name||'';
+    document.getElementById('fcr').value  = t.contact?.role||'';
+    document.getElementById('fcp').value  = t.contact?.phone||'';
+    document.getElementById('fce').value  = t.contact?.email||'';
+    document.getElementById('fam').value  = t.payment?.amount||'';
+    document.getElementById('fps').value  = t.payment?.status||'na';
+    document.getElementById('fpd').value  = t.payment?.date||'';
+    document.getElementById('fpn').value  = t.payment?.notes||'';
+  } else {
+    ['ft','fdt','fn','fcn','fcr','fcp','fce','fpd','fpn'].forEach(i => document.getElementById(i).value='');
     document.getElementById('fam').value='';
-    document.getElementById('fc').value='dept';
-    document.getElementById('fp').value='med';
-    document.getElementById('fst').value='pending';
-    document.getElementById('fps').value='na';
+    document.getElementById('fc').value  = 'dept';
+    document.getElementById('fp').value  = 'med';
+    document.getElementById('fst').value = 'pending';
+    document.getElementById('fps').value = 'na';
   }
   document.getElementById('mb').classList.add('open');
-  setTimeout(()=>document.getElementById('ft').focus(),50);
+  setTimeout(() => document.getElementById('ft').focus(), 60);
 }
-function closeModal(){document.getElementById('mb').classList.remove('open')}
+function closeModal() { document.getElementById('mb').classList.remove('open'); }
 
-async function saveTask(){
-  const title=document.getElementById('ft').value.trim();
-  if(!title){document.getElementById('ft').focus();return;}
-  const t={title,cat:document.getElementById('fc').value,pri:document.getElementById('fp').value,status:document.getElementById('fst').value,date:document.getElementById('fdt').value,notes:document.getElementById('fn').value.trim(),contact:{name:document.getElementById('fcn').value.trim(),role:document.getElementById('fcr').value.trim(),phone:document.getElementById('fcp').value.trim(),email:document.getElementById('fce').value.trim()},payment:{amount:parseFloat(document.getElementById('fam').value)||0,status:document.getElementById('fps').value,date:document.getElementById('fpd').value,notes:document.getElementById('fpn').value.trim()}};
-  const btn=document.getElementById('sbtn');btn.disabled=true;btn.textContent='Saving…';ss('sy');
-  try{
-    if(eid){const rows=await upd(eid,t2r(t));tasks=tasks.map(x=>x.id===eid?r2t(rows[0]):x);toast('Task updated');}
-    else{const rows=await ins(t2r(t));tasks.push(r2t(rows[0]));toast('Task added');}
-    ss('ok');closeModal();rafAll();
-  }catch(e){ss('er');toast('Save failed',true);}
-  btn.disabled=false;btn.textContent='Save task';
-}
-
-async function deleteTask(id){
-  if(!confirm('Delete this task?'))return;
+async function saveTask() {
+  const title = document.getElementById('ft').value.trim();
+  if(!title) { document.getElementById('ft').focus(); return; }
+  const t = {
+    title,
+    cat:    document.getElementById('fc').value,
+    pri:    document.getElementById('fp').value,
+    status: document.getElementById('fst').value,
+    date:   document.getElementById('fdt').value,
+    notes:  document.getElementById('fn').value.trim(),
+    contact: {
+      name:  document.getElementById('fcn').value.trim(),
+      role:  document.getElementById('fcr').value.trim(),
+      phone: document.getElementById('fcp').value.trim(),
+      email: document.getElementById('fce').value.trim(),
+    },
+    payment: {
+      amount: parseFloat(document.getElementById('fam').value)||0,
+      status: document.getElementById('fps').value,
+      date:   document.getElementById('fpd').value,
+      notes:  document.getElementById('fpn').value.trim(),
+    },
+  };
+  const btn = document.getElementById('sbtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
   ss('sy');
-  try{await del(id);tasks=tasks.filter(t=>t.id!==id);ss('ok');toast('Deleted');rafAll();}
-  catch(e){ss('er');toast('Delete failed',true);}
+  try {
+    if(eid) {
+      const rows = await dbUpd(eid, t2r(t));
+      tasks = tasks.map(x => x.id===eid ? r2t(rows[0]) : x);
+      toast('Task updated ✓');
+    } else {
+      const rows = await dbIns(t2r(t));
+      tasks.push(r2t(rows[0]));
+      toast('Task added ✓');
+    }
+    ss('ok'); closeModal(); rafAll();
+  } catch(e) {
+    ss('er');
+    toast('Save failed: ' + e.message, true);
+  }
+  btn.disabled = false; btn.textContent = 'Save task';
 }
 
-async function moveStatus(id,status){
+async function deleteTask(id) {
+  if(!confirm('Delete this task?')) return;
   ss('sy');
-  try{await upd(id,{status});tasks=tasks.map(t=>t.id===id?{...t,status}:t);ss('ok');renderDash();updateBadges();}
-  catch(e){ss('er');toast('Update failed',true);}
+  try {
+    await dbDel(id);
+    tasks = tasks.filter(t => t.id!==id);
+    ss('ok'); toast('Deleted'); rafAll();
+  } catch(e) { ss('er'); toast('Delete failed: '+e.message, true); }
 }
 
-function updateBadges(){
-  const active=tasks.filter(t=>t.status!=='done');
-  document.getElementById('nb-d').textContent=active.length;
-  document.getElementById('nb-all').textContent=tasks.length;
-  const od=tasks.filter(t=>t.date&&t.status!=='done'&&du(t.date)<0).length;
-  document.getElementById('nb-dl').textContent=od||'';
-  const pp=tasks.filter(t=>t.payment?.status==='pending').length;
-  document.getElementById('nb-pay').textContent=pp||'';
-  document.getElementById('nb-dept').textContent=tasks.filter(t=>t.cat==='dept').length;
-  document.getElementById('nb-thesis').textContent=tasks.filter(t=>t.cat==='thesis').length;
-  document.getElementById('nb-pub').textContent=tasks.filter(t=>t.cat==='pub').length;
-  document.getElementById('nb-ppt').textContent=tasks.filter(t=>t.cat==='ppt').length;
-  document.getElementById('nb-res').textContent=tasks.filter(t=>t.cat==='research').length;
-  document.getElementById('nb-fr').textContent=tasks.filter(t=>t.cat==='freelance').length;
+async function moveStatus(id, status) {
+  ss('sy');
+  try {
+    await dbUpd(id, {status});
+    tasks = tasks.map(t => t.id===id ? {...t, status} : t);
+    ss('ok'); renderDash(); updateBadges();
+  } catch(e) { ss('er'); toast('Update failed', true); }
 }
 
-function renderDash(){
-  const total=tasks.length,done=tasks.filter(t=>t.status==='done').length,inp=tasks.filter(t=>t.status==='inprogress').length,pend=tasks.filter(t=>t.status==='pending').length;
-  const earned=tasks.filter(t=>t.payment?.status==='received').reduce((s,t)=>s+(t.payment?.amount||0),0);
-  const pp=tasks.filter(t=>t.payment?.status==='pending').reduce((s,t)=>s+(t.payment?.amount||0),0);
-  document.getElementById('stats').innerHTML=`
+// ── Badges ──
+function updateBadges() {
+  const active = tasks.filter(t => t.status!=='done');
+  document.getElementById('nb-d').textContent   = active.length;
+  document.getElementById('nb-all').textContent = tasks.length;
+  const od = tasks.filter(t => t.date && t.status!=='done' && du(t.date)<0).length;
+  document.getElementById('nb-dl').textContent  = od||'';
+  const pp = tasks.filter(t => t.payment?.status==='pending').length;
+  document.getElementById('nb-pay').textContent = pp||'';
+  ['dept','thesis','pub','ppt'].forEach(c => document.getElementById('nb-'+c).textContent = tasks.filter(t=>t.cat===c).length);
+  document.getElementById('nb-res').textContent = tasks.filter(t=>t.cat==='research').length;
+  document.getElementById('nb-fr').textContent  = tasks.filter(t=>t.cat==='freelance').length;
+}
+
+// ── Dashboard ──
+function renderDash() {
+  const total=tasks.length, done=tasks.filter(t=>t.status==='done').length;
+  const inp=tasks.filter(t=>t.status==='inprogress').length, pend=tasks.filter(t=>t.status==='pending').length;
+  const earned = tasks.filter(t=>t.payment?.status==='received').reduce((s,t)=>s+(t.payment?.amount||0),0);
+  const ppay   = tasks.filter(t=>t.payment?.status==='pending').reduce((s,t)=>s+(t.payment?.amount||0),0);
+  document.getElementById('stats').innerHTML = `
     <div class="sc"><div class="scl">Total tasks</div><div class="scv">${total}</div><div class="scs">${done} completed</div></div>
     <div class="sc"><div class="scl">Pending</div><div class="scv" style="color:var(--amber)">${pend}</div><div class="scs">not started</div></div>
     <div class="sc"><div class="scl">In progress</div><div class="scv" style="color:var(--blue)">${inp}</div><div class="scs">active</div></div>
     <div class="sc"><div class="scl">Earned</div><div class="scv" style="color:var(--green);font-size:20px">${fmt(earned)}</div><div class="scs">received</div></div>
-    <div class="sc"><div class="scl">Outstanding</div><div class="scv" style="color:var(--amber);font-size:20px">${fmt(pp)}</div><div class="scs">pending</div></div>`;
-  const cats=['all',...Object.keys(CM)];
-  document.getElementById('kfilters').innerHTML=cats.map(c=>`<span class="fp${kf===c?' active':''}" onclick="setKF('${c}')">${c==='all'?'All':CM[c].label}</span>`).join('');
-  const vis=kf==='all'?tasks:tasks.filter(t=>t.cat===kf);
-  document.getElementById('kboard').innerHTML=SC.map(col=>{
-    const items=vis.filter(t=>t.status===col.id).sort((a,b)=>({high:0,med:1,low:2}[a.pri]-{high:0,med:1,low:2}[b.pri]));
-    const cards=items.length?items.map(t=>{
-      const mo=SC.filter(c=>c.id!==col.id).map(c=>`<button class="btn bg bsm" onclick="event.stopPropagation();moveStatus(${t.id},'${c.id}')">${c.label}</button>`).join('');
-      const inf=[t.contact?.name?`<span>👤 ${t.contact.name}</span>`:'',t.payment?.status!=='na'&&t.payment?.amount?`<span>${t.payment.status==='received'?'✓':'₹'} ${fmt(t.payment.amount)}</span>`:''].filter(Boolean).join('');
-      return`<div class="tc${col.id==='done'?' dn':''}" onclick="openModal(${t.id})">
+    <div class="sc"><div class="scl">Outstanding</div><div class="scv" style="color:var(--amber);font-size:20px">${fmt(ppay)}</div><div class="scs">pending</div></div>`;
+  const cats = ['all', ...Object.keys(CM)];
+  document.getElementById('kfilters').innerHTML = cats.map(c =>
+    `<span class="fp${kf===c?' active':''}" onclick="setKF('${c}')">${c==='all'?'All':CM[c].label}</span>`
+  ).join('');
+  const vis = kf==='all' ? tasks : tasks.filter(t => t.cat===kf);
+  document.getElementById('kboard').innerHTML = SC.map(col => {
+    const items = vis.filter(t => t.status===col.id).sort((a,b) => ({high:0,med:1,low:2}[a.pri]-{high:0,med:1,low:2}[b.pri]));
+    const cards = items.length ? items.map(t => {
+      const mo = SC.filter(c=>c.id!==col.id).map(c =>
+        `<button class="btn bg bsm" onclick="event.stopPropagation();moveStatus(${t.id},'${c.id}')">${c.label}</button>`
+      ).join('');
+      const inf = [
+        t.contact?.name ? `<span>👤 ${t.contact.name}</span>` : '',
+        t.payment?.status!=='na' && t.payment?.amount ? `<span>${t.payment.status==='received'?'✓':'₹'} ${fmt(t.payment.amount)}</span>` : '',
+      ].filter(Boolean).join('');
+      return `<div class="tc${col.id==='done'?' dn':''}" onclick="openModal(${t.id})">
         <div class="tct">${t.title}</div>
-        <div class="tcm"><span class="cp ${CM[t.cat].cls}">${CM[t.cat].label}</span><span class="pd" style="background:${PM[t.pri].color}" title="${PM[t.pri].label}"></span>${t.date?db(t.date):''}${pch(t.payment?.status)}</div>
+        <div class="tcm">
+          <span class="cp ${CM[t.cat].cls}">${CM[t.cat].label}</span>
+          <span class="prd" style="background:${PM[t.pri].color}" title="${PM[t.pri].label}"></span>
+          ${t.date?db(t.date):''}${pch(t.payment?.status)}
+        </div>
         ${inf?`<div class="tci">${inf}</div>`:''}
-        <div class="tca" onclick="event.stopPropagation()">${mo}<button class="btn bd bsm" style="margin-left:auto" onclick="deleteTask(${t.id})">✕</button></div>
+        <div class="tca" onclick="event.stopPropagation()">${mo}
+          <button class="btn bd bsm" style="margin-left:auto" onclick="deleteTask(${t.id})">✕</button>
+        </div>
       </div>`;
-    }).join(''):`<div class="ke"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg>Empty</div>`;
-    return`<div class="kc ${col.cls}"><div class="kch"><span class="kct">${col.label}</span><span class="kcc">${items.length}</span></div>${cards}</div>`;
+    }).join('') : `<div class="ke"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg>Empty</div>`;
+    return `<div class="kc ${col.cls}"><div class="kch"><span class="kct">${col.label}</span><span class="kcc">${items.length}</span></div>${cards}</div>`;
   }).join('');
 }
-function setKF(c){kf=c;renderDash()}
+function setKF(c) { kf=c; renderDash(); }
 
-function renderDL(){
-  const wd=tasks.filter(t=>t.date&&t.status!=='done').map(t=>({...t,days:du(t.date)})).sort((a,b)=>a.days-b.days);
-  const ov=wd.filter(t=>t.days<0),up=wd.filter(t=>t.days>=0),nd=tasks.filter(t=>!t.date&&t.status!=='done');
+// ── Deadlines ──
+function renderDL() {
+  const wd  = tasks.filter(t=>t.date&&t.status!=='done').map(t=>({...t,days:du(t.date)})).sort((a,b)=>a.days-b.days);
+  const ov  = wd.filter(t=>t.days<0), up=wd.filter(t=>t.days>=0);
+  const nd  = tasks.filter(t=>!t.date&&t.status!=='done');
   let h='';
-  if(ov.length)h+=`<div class="ovs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${ov.length} overdue task${ov.length>1?'s':''}</div><div class="stl">Overdue</div>`+ov.map(dlc).join('');
-  if(up.length)h+=`<div class="stl" style="margin-top:${ov.length?'22px':'0'}">Upcoming</div>`+up.map(dlc).join('');
-  if(nd.length)h+=`<div class="stl" style="margin-top:22px">No deadline set</div>`+nd.map(dlc).join('');
-  if(!h)h='<div style="color:var(--text3);font-size:13px;padding:40px 0;text-align:center">No active tasks</div>';
-  document.getElementById('dl-content').innerHTML=h;
+  if(ov.length) h += `<div class="ovs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${ov.length} overdue task${ov.length>1?'s':''}</div><div class="stl">Overdue</div>`+ov.map(dlc).join('');
+  if(up.length) h += `<div class="stl" style="margin-top:${ov.length?'22px':'0'}">Upcoming</div>`+up.map(dlc).join('');
+  if(nd.length) h += `<div class="stl" style="margin-top:22px">No deadline set</div>`+nd.map(dlc).join('');
+  if(!h) h = '<div style="color:var(--text3);font-size:13px;padding:40px 0;text-align:center">No active tasks</div>';
+  document.getElementById('dl-content').innerHTML = h;
 }
-function dlc(t){
-  const days=t.days!==undefined?t.days:null;
-  let dc='dk',dn='—';
-  if(days!==null){dn=days<0?`${Math.abs(days)}d ago`:days===0?'Today':`${days}d`;dc=days<0||days<=3?'do':days<=7?'dw':'dk'}
-  return`<div class="dlc" onclick="openModal(${t.id})"><div class="dll"><div class="dlt">${t.title}</div><div class="dlm"><span class="cp ${CM[t.cat].cls}">${CM[t.cat].label}</span><span style="color:${PM[t.pri].color};font-size:11px;font-weight:500">${PM[t.pri].label}</span>${t.contact?.name?`<span style="color:var(--text3)">👤 ${t.contact.name}</span>`:''}${pch(t.payment?.status)}</div></div><div class="dlr"><div class="dld ${dc}">${dn}</div><div class="dldt">${fd(t.date)}</div></div></div>`;
+function dlc(t) {
+  const days = t.days!==undefined ? t.days : null;
+  let dc='dk', dn='—';
+  if(days!==null) { dn=days<0?`${Math.abs(days)}d ago`:days===0?'Today':`${days}d`; dc=days<0||days<=3?'do':days<=7?'dw':'dk'; }
+  return `<div class="dlc" onclick="openModal(${t.id})">
+    <div class="dll"><div class="dlt">${t.title}</div>
+      <div class="dlm">
+        <span class="cp ${CM[t.cat].cls}">${CM[t.cat].label}</span>
+        <span style="color:${PM[t.pri].color};font-size:11px;font-weight:500">${PM[t.pri].label}</span>
+        ${t.contact?.name?`<span style="color:var(--text3)">👤 ${t.contact.name}</span>`:''}
+        ${pch(t.payment?.status)}
+      </div>
+    </div>
+    <div class="dlr"><div class="dld ${dc}">${dn}</div><div class="dldt">${fd(t.date)}</div></div>
+  </div>`;
 }
 
-function renderPay(){
-  const ev=tasks.filter(t=>t.payment?.status==='received').reduce((s,t)=>s+(t.payment?.amount||0),0);
-  const pv=tasks.filter(t=>t.payment?.status==='pending').reduce((s,t)=>s+(t.payment?.amount||0),0);
-  document.getElementById('pay-stats').innerHTML=`<div class="pgs"><div class="pgsl">Total billed</div><div class="pgsv">${fmt(ev+pv)}</div></div><div class="pgs"><div class="pgsl">Received</div><div class="pgsv" style="color:var(--green)">${fmt(ev)}</div></div><div class="pgs"><div class="pgsl">Outstanding</div><div class="pgsv" style="color:var(--amber)">${fmt(pv)}</div></div>`;
-  const pt=tasks.filter(t=>t.payment?.status!=='na').sort((a,b)=>({pending:0,received:1}[a.payment?.status]||0)-({pending:0,received:1}[b.payment?.status]||0));
-  const nt=tasks.filter(t=>!t.payment||t.payment.status==='na');
+// ── Payments ──
+function renderPay() {
+  const ev = tasks.filter(t=>t.payment?.status==='received').reduce((s,t)=>s+(t.payment?.amount||0),0);
+  const pv = tasks.filter(t=>t.payment?.status==='pending').reduce((s,t)=>s+(t.payment?.amount||0),0);
+  document.getElementById('pay-stats').innerHTML = `
+    <div class="pgs"><div class="pgsl">Total billed</div><div class="pgsv">${fmt(ev+pv)}</div></div>
+    <div class="pgs"><div class="pgsl">Received</div><div class="pgsv" style="color:var(--green)">${fmt(ev)}</div></div>
+    <div class="pgs"><div class="pgsl">Outstanding</div><div class="pgsv" style="color:var(--amber)">${fmt(pv)}</div></div>`;
+  const pt = tasks.filter(t=>t.payment?.status!=='na').sort((a,b)=>({pending:0,received:1}[a.payment?.status]||0)-({pending:0,received:1}[b.payment?.status]||0));
+  const nt = tasks.filter(t=>!t.payment||t.payment.status==='na');
   let h='';
-  if(pt.length){h+=`<div class="stl" style="margin-bottom:10px">Billed work</div>`;h+=pt.map(t=>`<div class="pr" onclick="openModal(${t.id})"><div class="prl"><div class="prt">${t.title}</div><div class="prm"><span class="cp ${CM[t.cat].cls}">${CM[t.cat].label}</span><span class="sb ${t.status==='inprogress'?'sip':t.status==='done'?'sdo':'spe'}">${t.status==='inprogress'?'In progress':t.status.charAt(0).toUpperCase()+t.status.slice(1)}</span>${t.contact?.name?`<span style="color:var(--text3)">👤 ${t.contact.name}</span>`:''}${t.payment?.notes?`<span style="color:var(--text3);font-style:italic">${t.payment.notes}</span>`:''}</div></div><div class="prr"><div class="pa ${t.payment.status==='received'?'rv':'pv'}">${fmt(t.payment.amount)}</div><div class="pd2">${t.payment.status==='received'?'Received '+fd(t.payment.date):'Payment pending'}</div></div></div>`).join('');}
-  if(nt.length){h+=`<div class="stl" style="margin-top:24px;margin-bottom:10px">Unpaid / departmental work</div>`;h+=nt.map(t=>`<div class="pr" onclick="openModal(${t.id})"><div class="prl"><div class="prt">${t.title}</div><div class="prm"><span class="cp ${CM[t.cat].cls}">${CM[t.cat].label}</span>${t.contact?.name?`<span style="color:var(--text3)">👤 ${t.contact.name}</span>`:''}</div></div><div class="prr"><div class="pa nv">—</div><div class="pd2">No billing</div></div></div>`).join('');}
-  document.getElementById('pay-list').innerHTML=h||'<div style="color:var(--text3);font-size:13px;padding:32px 0;text-align:center">No tasks</div>';
+  if(pt.length) {
+    h += `<div class="stl" style="margin-bottom:10px">Billed work</div>`;
+    h += pt.map(t => `<div class="pr" onclick="openModal(${t.id})">
+      <div class="prl"><div class="prt">${t.title}</div>
+        <div class="prm">
+          <span class="cp ${CM[t.cat].cls}">${CM[t.cat].label}</span>
+          <span class="sb ${t.status==='inprogress'?'sip':t.status==='done'?'sdo':'spe'}">${t.status==='inprogress'?'In progress':t.status.charAt(0).toUpperCase()+t.status.slice(1)}</span>
+          ${t.contact?.name?`<span style="color:var(--text3)">👤 ${t.contact.name}</span>`:''}
+          ${t.payment?.notes?`<span style="color:var(--text3);font-style:italic">${t.payment.notes}</span>`:''}
+        </div>
+      </div>
+      <div class="prr">
+        <div class="pa ${t.payment.status==='received'?'rv':'pv'}">${fmt(t.payment.amount)}</div>
+        <div class="pd2">${t.payment.status==='received'?'Received '+fd(t.payment.date):'Payment pending'}</div>
+      </div>
+    </div>`).join('');
+  }
+  if(nt.length) {
+    h += `<div class="stl" style="margin-top:24px;margin-bottom:10px">Unpaid / departmental work</div>`;
+    h += nt.map(t => `<div class="pr" onclick="openModal(${t.id})">
+      <div class="prl"><div class="prt">${t.title}</div>
+        <div class="prm"><span class="cp ${CM[t.cat].cls}">${CM[t.cat].label}</span>${t.contact?.name?`<span style="color:var(--text3)">👤 ${t.contact.name}</span>`:''}</div>
+      </div>
+      <div class="prr"><div class="pa nv">—</div><div class="pd2">No billing</div></div>
+    </div>`).join('');
+  }
+  document.getElementById('pay-list').innerHTML = h || '<div style="color:var(--text3);font-size:13px;padding:32px 0;text-align:center">No tasks</div>';
 }
 
-function setTF(c){tf=c;renderAll()}
-function renderAll(){
-  const sf=document.getElementById('tsf')?.value||'all';
-  let f=tasks;
-  if(tf!=='all')f=f.filter(t=>t.cat===tf);
-  if(sf!=='all')f=f.filter(t=>t.status===sf);
-  const cm=tf!=='all'?CM[tf]:null;
-  document.getElementById('all-title').textContent=cm?cm.label:'All tasks';
-  document.getElementById('all-sub').textContent=`${f.length} task${f.length!==1?'s':''}`;
-  document.getElementById('ttbody').innerHTML=f.length?f.map(t=>`<tr>
+// ── All Tasks ──
+function setTF(c) { tf=c; renderAll(); }
+function renderAll() {
+  const sf = document.getElementById('tsf')?.value||'all';
+  let f = tasks;
+  if(tf!=='all') f = f.filter(t=>t.cat===tf);
+  if(sf!=='all') f = f.filter(t=>t.status===sf);
+  const cm = tf!=='all' ? CM[tf] : null;
+  document.getElementById('all-title').textContent = cm ? cm.label : 'All tasks';
+  document.getElementById('all-sub').textContent   = `${f.length} task${f.length!==1?'s':''}`;
+  document.getElementById('ttbody').innerHTML = f.length ? f.map(t => `<tr>
     <td style="max-width:220px"><span style="font-weight:500">${t.title}</span></td>
     <td><span class="cp ${CM[t.cat].cls}">${CM[t.cat].label}</span></td>
     <td><span style="color:${PM[t.pri].color};font-weight:600;font-size:11.5px">${PM[t.pri].label}</span></td>
     <td><span class="sb ${t.status==='inprogress'?'sip':t.status==='done'?'sdo':'spe'}">${t.status==='inprogress'?'In progress':t.status.charAt(0).toUpperCase()+t.status.slice(1)}</span></td>
-    <td style="white-space:nowrap;font-size:12px">${t.date?fd(t.date)+' '+db(t.date):'<span style="color:var(--text3)">—</span>'}</td>
-    <td style="font-size:12px">${t.contact?.name?`<div style="font-weight:500">${t.contact.name}</div>`:''} ${t.contact?.role?`<div style="color:var(--text3);font-size:11px">${t.contact.role}</div>`:''} ${t.contact?.phone?`<div style="color:var(--text2);font-size:11px">📞 ${t.contact.phone}</div>`:''}</td>
-    <td style="font-size:12px;white-space:nowrap">${t.payment?.amount?fmt(t.payment.amount):'<span style="color:var(--text3)">—</span>'}</td>
-    <td>${t.payment?.status&&t.payment.status!=='na'?`<span class="pc ${PCM[t.payment.status].cls}">${PCM[t.payment.status].label}</span>`:'<span style="color:var(--text3);font-size:11px">N/A</span>'}</td>
-    <td><div class="ta"><button class="btn bg bsm" onclick="openModal(${t.id})">Edit</button><button class="btn bd bsm" onclick="deleteTask(${t.id})">✕</button></div></td>
-  </tr>`).join(''):`<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:36px">No tasks found</td></tr>`;
+    <td style="white-space:nowrap;font-size:12px">${t.date ? fd(t.date)+' '+db(t.date) : '<span style="color:var(--text3)">—</span>'}</td>
+    <td style="font-size:12px">
+      ${t.contact?.name  ? `<div style="font-weight:500">${t.contact.name}</div>` : ''}
+      ${t.contact?.role  ? `<div style="color:var(--text3);font-size:11px">${t.contact.role}</div>` : ''}
+      ${t.contact?.phone ? `<div style="color:var(--text2);font-size:11px">📞 ${t.contact.phone}</div>` : ''}
+    </td>
+    <td style="font-size:12px;white-space:nowrap">${t.payment?.amount ? fmt(t.payment.amount) : '<span style="color:var(--text3)">—</span>'}</td>
+    <td>${t.payment?.status && t.payment.status!=='na' ? `<span class="pc ${PCM[t.payment.status].cls}">${PCM[t.payment.status].label}</span>` : '<span style="color:var(--text3);font-size:11px">N/A</span>'}</td>
+    <td><div class="ta">
+      <button class="btn bg bsm" onclick="openModal(${t.id})">Edit</button>
+      <button class="btn bd bsm" onclick="deleteTask(${t.id})">✕</button>
+    </div></td>
+  </tr>`).join('') : `<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:36px">No tasks found</td></tr>`;
 }
 
-function renderAn(){
-  const cc=Object.keys(CM).map(c=>({label:CM[c].label,count:tasks.filter(t=>t.cat===c).length,color:CM[c].color})).sort((a,b)=>b.count-a.count);
-  const mx=Math.max(...cc.map(c=>c.count),1);
-  const sc=[{label:'Pending',count:tasks.filter(t=>t.status==='pending').length,color:'#B8720F'},{label:'In progress',count:tasks.filter(t=>t.status==='inprogress').length,color:'#185FA5'},{label:'Done',count:tasks.filter(t=>t.status==='done').length,color:'#2D7A4A'}];
-  const tot=tasks.length||1;
-  const pc=[{label:'High',count:tasks.filter(t=>t.pri==='high').length,color:'#C0392B'},{label:'Medium',count:tasks.filter(t=>t.pri==='med').length,color:'#B8720F'},{label:'Low',count:tasks.filter(t=>t.pri==='low').length,color:'#2D7A4A'}];
-  const ec=Object.keys(CM).map(c=>({label:CM[c].label,color:CM[c].color,amt:tasks.filter(t=>t.cat===c&&t.payment?.status==='received').reduce((s,t)=>s+(t.payment?.amount||0),0)})).filter(c=>c.amt>0).sort((a,b)=>b.amt-a.amt);
-  const me=Math.max(...ec.map(c=>c.amt),1);
-  let off=0;const r=40,ci=2*Math.PI*r;
-  const sl=sc.map(s=>{const d=(s.count/tot)*ci;const x=`<circle cx="50" cy="50" r="${r}" fill="none" stroke="${s.color}" stroke-width="15" stroke-dasharray="${d} ${ci-d}" stroke-dashoffset="${-off}" transform="rotate(-90 50 50)"/>`;off+=d;return x;}).join('');
-  const od=tasks.filter(t=>t.date&&t.status!=='done'&&du(t.date)<0).length;
-  const ds=tasks.filter(t=>t.date&&t.status!=='done'&&du(t.date)!==null&&du(t.date)>=0&&du(t.date)<=7).length;
-  const te=tasks.filter(t=>t.payment?.status==='received').reduce((s,t)=>s+(t.payment?.amount||0),0);
-  const tp=tasks.filter(t=>t.payment?.status==='pending').reduce((s,t)=>s+(t.payment?.amount||0),0);
-  document.getElementById('analytics').innerHTML=`
+// ── Analytics ──
+function renderAn() {
+  const cc = Object.keys(CM).map(c=>({label:CM[c].label, count:tasks.filter(t=>t.cat===c).length, color:CM[c].color})).sort((a,b)=>b.count-a.count);
+  const mx = Math.max(...cc.map(c=>c.count),1);
+  const sc = [{label:'Pending',count:tasks.filter(t=>t.status==='pending').length,color:'#B8720F'},{label:'In progress',count:tasks.filter(t=>t.status==='inprogress').length,color:'#185FA5'},{label:'Done',count:tasks.filter(t=>t.status==='done').length,color:'#2D7A4A'}];
+  const tot = tasks.length||1;
+  const ec  = Object.keys(CM).map(c=>({label:CM[c].label,color:CM[c].color,amt:tasks.filter(t=>t.cat===c&&t.payment?.status==='received').reduce((s,t)=>s+(t.payment?.amount||0),0)})).filter(c=>c.amt>0).sort((a,b)=>b.amt-a.amt);
+  const me  = Math.max(...ec.map(c=>c.amt),1);
+  let off=0; const r=40, ci=2*Math.PI*r;
+  const sl = sc.map(s => { const d=(s.count/tot)*ci; const x=`<circle cx="50" cy="50" r="${r}" fill="none" stroke="${s.color}" stroke-width="15" stroke-dasharray="${d} ${ci-d}" stroke-dashoffset="${-off}" transform="rotate(-90 50 50)"/>`; off+=d; return x; }).join('');
+  const od = tasks.filter(t=>t.date&&t.status!=='done'&&du(t.date)<0).length;
+  const ds = tasks.filter(t=>t.date&&t.status!=='done'&&du(t.date)!==null&&du(t.date)>=0&&du(t.date)<=7).length;
+  const te = tasks.filter(t=>t.payment?.status==='received').reduce((s,t)=>s+(t.payment?.amount||0),0);
+  const tp = tasks.filter(t=>t.payment?.status==='pending').reduce((s,t)=>s+(t.payment?.amount||0),0);
+  document.getElementById('analytics').innerHTML = `
     <div class="ac"><div class="act">Tasks by category</div>${cc.map(c=>`<div class="br"><span class="bl" title="${c.label}">${c.label}</span><div class="bt"><div class="bf" style="width:${Math.round(c.count/mx*100)}%;background:${c.color}"></div></div><span class="bc">${c.count}</span></div>`).join('')}</div>
     <div class="ac"><div class="act">Status breakdown</div><div class="dw2"><svg viewBox="0 0 100 100" width="106" height="106" style="flex-shrink:0"><circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--border)" stroke-width="15"/>${sl}<text x="50" y="46" text-anchor="middle" font-size="13" font-weight="500" fill="var(--text)" font-family="DM Serif Display,serif">${tot}</text><text x="50" y="57" text-anchor="middle" font-size="7.5" fill="var(--text3)" font-family="DM Sans,sans-serif">tasks</text></svg><div class="dl2">${sc.map(s=>`<div class="lr"><span class="ld" style="background:${s.color}"></span>${s.label}<span class="lv">${s.count}</span></div>`).join('')}</div></div></div>
     <div class="ac"><div class="act">Earnings by category</div>${ec.length?ec.map(c=>`<div class="br"><span class="bl">${c.label}</span><div class="bt"><div class="bf" style="width:${Math.round(c.amt/me*100)}%;background:${c.color}"></div></div><span class="bc" style="width:60px;font-size:11px">₹${(c.amt/1000).toFixed(1)}k</span></div>`).join(''):'<div style="color:var(--text3);font-size:12px;padding:12px 0">No earnings yet</div>'}</div>
@@ -499,9 +686,10 @@ function renderAn(){
     </div></div>`;
 }
 
-document.getElementById('tdate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-document.getElementById('mb').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+// ── Init ──
+document.getElementById('tdate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+document.getElementById('mb').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
 loadTasks();
 </script>
 </body>
